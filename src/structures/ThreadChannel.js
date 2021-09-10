@@ -2,7 +2,6 @@
 
 const Channel = require('./Channel');
 const TextBasedChannel = require('./interfaces/TextBasedChannel');
-const { RangeError } = require('../errors');
 const MessageManager = require('../managers/MessageManager');
 const ThreadMemberManager = require('../managers/ThreadMemberManager');
 const Permissions = require('../util/Permissions');
@@ -67,8 +66,8 @@ class ThreadChannel extends Channel {
        * @type {?Snowflake}
        */
       this.parentId = data.parent_id;
-    } else {
-      this.parentId ??= null;
+    } else if (!this.parentId) {
+      this.parentId = null;
     }
 
     if ('thread_metadata' in data) {
@@ -77,13 +76,6 @@ class ThreadChannel extends Channel {
        * @type {?boolean}
        */
       this.locked = data.thread_metadata.locked ?? false;
-
-      /**
-       * Whether members without `MANAGE_THREADS` can invite other members without `MANAGE_THREADS`
-       * <info>Always `null` in public threads</info>
-       * @type {?boolean}
-       */
-      this.invitable = this.type === 'GUILD_PRIVATE_THREAD' ? data.thread_metadata.invitable ?? false : null;
 
       /**
        * Whether the thread is archived
@@ -105,11 +97,18 @@ class ThreadChannel extends Channel {
        */
       this.archiveTimestamp = new Date(data.thread_metadata.archive_timestamp).getTime();
     } else {
-      this.locked ??= null;
-      this.archived ??= null;
-      this.autoArchiveDuration ??= null;
-      this.archiveTimestamp ??= null;
-      this.invitable ??= null;
+      if (!this.locked) {
+        this.locked = null;
+      }
+      if (!this.archived) {
+        this.archived = null;
+      }
+      if (!this.autoArchiveDuration) {
+        this.autoArchiveDuration = null;
+      }
+      if (!this.archiveTimestamp) {
+        this.archiveTimestamp = null;
+      }
     }
 
     if ('owner_id' in data) {
@@ -118,8 +117,8 @@ class ThreadChannel extends Channel {
        * @type {?Snowflake}
        */
       this.ownerId = data.owner_id;
-    } else {
-      this.ownerId ??= null;
+    } else if (!this.ownerId) {
+      this.ownerId = null;
     }
 
     if ('last_message_id' in data) {
@@ -128,8 +127,8 @@ class ThreadChannel extends Channel {
        * @type {?Snowflake}
        */
       this.lastMessageId = data.last_message_id;
-    } else {
-      this.lastMessageId ??= null;
+    } else if (!this.lastMessageId) {
+      this.lastMessageId = null;
     }
 
     if ('last_pin_timestamp' in data) {
@@ -138,8 +137,8 @@ class ThreadChannel extends Channel {
        * @type {?number}
        */
       this.lastPinTimestamp = data.last_pin_timestamp ? new Date(data.last_pin_timestamp).getTime() : null;
-    } else {
-      this.lastPinTimestamp ??= null;
+    } else if (!this.lastPinTimestamp) {
+      this.lastPinTimestamp = null;
     }
 
     if ('rate_limit_per_user' in data || !partial) {
@@ -148,8 +147,8 @@ class ThreadChannel extends Channel {
        * @type {?number}
        */
       this.rateLimitPerUser = data.rate_limit_per_user ?? 0;
-    } else {
-      this.rateLimitPerUser ??= null;
+    } else if (!this.rateLimitPerUser) {
+      this.rateLimitPerUser = null;
     }
 
     if ('message_count' in data) {
@@ -160,8 +159,8 @@ class ThreadChannel extends Channel {
        * @type {?number}
        */
       this.messageCount = data.message_count;
-    } else {
-      this.messageCount ??= null;
+    } else if (!this.messageCount) {
+      this.messageCount = null;
     }
 
     if ('member_count' in data) {
@@ -172,8 +171,8 @@ class ThreadChannel extends Channel {
        * @type {?number}
        */
       this.memberCount = data.member_count;
-    } else {
-      this.memberCount ??= null;
+    } else if (!this.memberCount) {
+      this.memberCount = null;
     }
 
     if (data.member && this.client.user) this.members._add({ user_id: this.client.user.id, ...data.member });
@@ -255,17 +254,6 @@ class ThreadChannel extends Channel {
   }
 
   /**
-   * Fetches the message that started this thread, if any.
-   * <info>This only works when the thread started from a message in the parent channel, otherwise the promise will
-   * reject. If you just need the id of that message, use {@link ThreadChannel#id} instead.</info>
-   * @param {BaseFetchOptions} [options] Additional options for this fetch
-   * @returns {Promise<Message>}
-   */
-  fetchStarterMessage(options) {
-    return this.parent.messages.fetch(this.id, options);
-  }
-
-  /**
    * The options used to edit a thread channel
    * @typedef {Object} ThreadEditData
    * @property {string} [name] The new name for the thread
@@ -274,8 +262,6 @@ class ThreadChannel extends Channel {
    * should automatically archive in case of no recent activity
    * @property {number} [rateLimitPerUser] The ratelimit per user for the thread in seconds
    * @property {boolean} [locked] Whether the thread is locked
-   * @property {boolean} [invitable] Whether non-moderators can add other non-moderators to a thread
-   * <info>Can only be edited on `GUILD_PRIVATE_THREAD`</info>
    */
 
   /**
@@ -306,7 +292,6 @@ class ThreadChannel extends Channel {
         auto_archive_duration: autoArchiveDuration,
         rate_limit_per_user: data.rateLimitPerUser,
         locked: data.locked,
-        invitable: this.type === 'GUILD_PRIVATE_THREAD' ? data.invitable : undefined,
       },
       reason,
     });
@@ -345,18 +330,6 @@ class ThreadChannel extends Channel {
    */
   setAutoArchiveDuration(autoArchiveDuration, reason) {
     return this.edit({ autoArchiveDuration }, reason);
-  }
-
-  /**
-   * Sets whether members without the `MANAGE_THREADS` permission can invite other members without the
-   * `MANAGE_THREADS` permission to this thread.
-   * @param {boolean} [invitable=true] Whether non-moderators can invite non-moderators to this thread
-   * @param {string} [reason] Reason for changing invite
-   * @returns {Promise<ThreadChannel>}
-   */
-  setInvitable(invitable = true, reason) {
-    if (this.type !== 'GUILD_PRIVATE_THREAD') return Promise.reject(new RangeError('THREAD_INVITABLE_TYPE', this.type));
-    return this.edit({ invitable }, reason);
   }
 
   /**

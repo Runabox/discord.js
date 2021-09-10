@@ -49,10 +49,8 @@ exports.Endpoints = {
         if (dynamic) format = hash.startsWith('a_') ? 'gif' : format;
         return makeImageUrl(`${root}/avatars/${userId}/${hash}`, { format, size });
       },
-      Banner: (id, hash, format = 'webp', size, dynamic = false) => {
-        if (dynamic) format = hash.startsWith('a_') ? 'gif' : format;
-        return makeImageUrl(`${root}/banners/${id}/${hash}`, { format, size });
-      },
+      Banner: (guildId, hash, format = 'webp', size) =>
+        makeImageUrl(`${root}/banners/${guildId}/${hash}`, { format, size }),
       Icon: (guildId, hash, format = 'webp', size, dynamic = false) => {
         if (dynamic) format = hash.startsWith('a_') ? 'gif' : format;
         return makeImageUrl(`${root}/icons/${guildId}/${hash}`, { format, size });
@@ -376,7 +374,6 @@ exports.InviteScopes = [
  * * APPLICATION_COMMAND
  * * THREAD_STARTER_MESSAGE
  * * GUILD_INVITE_REMINDER
- * * CONTEXT_MENU_COMMAND
  * @typedef {string} MessageType
  * @see {@link https://discord.com/developers/docs/resources/channel#message-object-message-types}
  */
@@ -404,7 +401,6 @@ exports.MessageTypes = [
   'APPLICATION_COMMAND',
   'THREAD_STARTER_MESSAGE',
   'GUILD_INVITE_REMINDER',
-  'CONTEXT_MENU_COMMAND',
 ];
 
 /**
@@ -412,11 +408,10 @@ exports.MessageTypes = [
  * * DEFAULT
  * * REPLY
  * * APPLICATION_COMMAND
- * * CONTEXT_MENU_COMMAND
  * @typedef {string} SystemMessageType
  */
 exports.SystemMessageTypes = exports.MessageTypes.filter(
-  type => type && !['DEFAULT', 'REPLY', 'APPLICATION_COMMAND', 'CONTEXT_MENU_COMMAND'].includes(type),
+  type => type && !['DEFAULT', 'REPLY', 'APPLICATION_COMMAND'].includes(type),
 );
 
 /**
@@ -641,7 +636,6 @@ exports.VerificationLevels = createEnum(['NONE', 'LOW', 'MEDIUM', 'HIGH', 'VERY_
  * * MAXIMUM_NON_GUILD_MEMBERS_BANS
  * * MAXIMUM_BAN_FETCHES
  * * MAXIMUM_NUMBER_OF_STICKERS_REACHED
- * * MAXIMUM_PRUNE_REQUESTS
  * * UNAUTHORIZED
  * * ACCOUNT_VERIFICATION_REQUIRED
  * * DIRECT_MESSAGES_TOO_FAST
@@ -693,7 +687,6 @@ exports.VerificationLevels = createEnum(['NONE', 'LOW', 'MEDIUM', 'HIGH', 'VERY_
  * * REACTION_BLOCKED
  * * RESOURCE_OVERLOADED
  * * STAGE_ALREADY_OPEN
- * * CANNOT_REPLY_WITHOUT_READ_MESSAGE_HISTORY_PERMISSION
  * * MESSAGE_ALREADY_HAS_THREAD
  * * THREAD_LOCKED
  * * MAXIMUM_ACTIVE_THREADS
@@ -771,7 +764,6 @@ exports.APIErrors = {
   MAXIMUM_NON_GUILD_MEMBERS_BANS: 30035,
   MAXIMUM_BAN_FETCHES: 30037,
   MAXIMUM_NUMBER_OF_STICKERS_REACHED: 30039,
-  MAXIMUM_PRUNE_REQUESTS: 30040,
   UNAUTHORIZED: 40001,
   ACCOUNT_VERIFICATION_REQUIRED: 40002,
   DIRECT_MESSAGES_TOO_FAST: 40003,
@@ -825,7 +817,6 @@ exports.APIErrors = {
   REACTION_BLOCKED: 90001,
   RESOURCE_OVERLOADED: 130000,
   STAGE_ALREADY_OPEN: 150006,
-  CANNOT_REPLY_WITHOUT_READ_MESSAGE_HISTORY_PERMISSION: 160002,
   MESSAGE_ALREADY_HAS_THREAD: 160004,
   THREAD_LOCKED: 160005,
   MAXIMUM_ACTIVE_THREADS: 160006,
@@ -902,7 +893,6 @@ exports.OverwriteTypes = createEnum(['role', 'member']);
  * * USER
  * * MESSAGE
  * @typedef {string} ApplicationCommandType
- * @see {@link https://discord.com/developers/docs/interactions/application-commands#application-command-object-application-command-types}
  */
 exports.ApplicationCommandTypes = createEnum([null, 'CHAT_INPUT', 'USER', 'MESSAGE']);
 
@@ -950,7 +940,7 @@ exports.ApplicationCommandPermissionTypes = createEnum([null, 'ROLE', 'USER']);
  * * APPLICATION_COMMAND
  * * MESSAGE_COMPONENT
  * @typedef {string} InteractionType
- * @see {@link https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-object-interaction-type}
+ * @see {@link https://discord.com/developers/docs/interactions/receiving-and-responding#interaction-object-interaction-request-type}
  */
 exports.InteractionTypes = createEnum([null, 'PING', 'APPLICATION_COMMAND', 'MESSAGE_COMPONENT']);
 

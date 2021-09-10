@@ -5,7 +5,7 @@ const FormData = require('@discordjs/form-data');
 const fetch = require('node-fetch');
 const { UserAgent } = require('../util/Constants');
 
-let agent = null;
+const agent = new https.Agent({ keepAlive: true });
 
 class APIRequest {
   constructor(rest, method, path, options) {
@@ -30,8 +30,6 @@ class APIRequest {
   }
 
   make() {
-    agent ??= new https.Agent({ ...this.client.options.http.agent, keepAlive: true });
-
     const API =
       this.options.versioned === false
         ? this.client.options.http.api

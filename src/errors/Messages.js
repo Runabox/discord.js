@@ -99,12 +99,10 @@ const Messages = {
 
   MESSAGE_THREAD_PARENT: 'The message was not sent in a guild text or news channel',
   MESSAGE_EXISTING_THREAD: 'The message already has a thread',
-  THREAD_INVITABLE_TYPE: type => `Invitable cannot be edited on ${type}`,
 
   WEBHOOK_MESSAGE: 'The message was not sent by a webhook.',
   WEBHOOK_TOKEN_UNAVAILABLE: 'This action requires a webhook token, but none is available.',
   WEBHOOK_URL_INVALID: 'The provided webhook URL is not valid.',
-  WEBHOOK_APPLICATION: 'This message webhook belongs to an application and cannot be fetched.',
   MESSAGE_REFERENCE_MISSING: 'The message does not reference another message',
 
   EMOJI_TYPE: 'Emoji must be a string or GuildEmoji/ReactionEmoji',
@@ -133,7 +131,8 @@ const Messages = {
 
   INTERACTION_ALREADY_REPLIED: 'The reply to this interaction has already been sent or deferred.',
   INTERACTION_NOT_REPLIED: 'The reply to this interaction has not been sent or deferred.',
-  INTERACTION_EPHEMERAL_REPLIED: 'Ephemeral responses cannot be deleted.',
+  INTERACTION_EPHEMERAL_REPLIED: 'Ephemeral responses cannot be fetched or deleted.',
+  INTERACTION_FETCH_EPHEMERAL: 'Ephemeral responses cannot be fetched.',
 
   COMMAND_INTERACTION_OPTION_NOT_FOUND: name => `Required option "${name}" not found.`,
   COMMAND_INTERACTION_OPTION_TYPE: (name, type, expected) =>

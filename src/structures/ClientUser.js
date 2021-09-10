@@ -25,16 +25,16 @@ class ClientUser extends User {
        * @type {?boolean}
        */
       this.mfaEnabled = typeof data.mfa_enabled === 'boolean' ? data.mfa_enabled : null;
-    } else {
-      this.mfaEnabled ??= null;
+    } else if (typeof this.mfaEnabled === 'undefined') {
+      this.mfaEnabled = null;
     }
 
     if (data.token) this.client.token = data.token;
   }
 
   /**
-   * Represents the client user's presence
-   * @type {ClientPresence}
+   * ClientUser's presence
+   * @type {Presence}
    * @readonly
    */
   get presence() {
@@ -43,7 +43,7 @@ class ClientUser extends User {
 
   /**
    * Data used to edit the logged in client
-   * @typedef {Object} ClientUserEditData
+   * @typdef {Object} ClientUserEditData
    * @property {string} [username] The new username
    * @property {BufferResolvable|Base64Resolvable} [avatar] The new avatar
    */
@@ -51,7 +51,6 @@ class ClientUser extends User {
   /**
    * Edits the logged in client.
    * @param {ClientUserEditData} data The new data
-   * @returns {Promise<ClientUser>}
    */
   async edit(data) {
     const newData = await this.client.api.users('@me').patch({ data });
@@ -110,7 +109,7 @@ class ClientUser extends User {
   /**
    * Sets the full presence of the client user.
    * @param {PresenceData} data Data for the presence
-   * @returns {ClientPresence}
+   * @returns {Presence}
    * @example
    * // Set the client user's presence
    * client.user.setPresence({ activities: [{ name: 'with discord.js' }], status: 'idle' });
@@ -132,7 +131,7 @@ class ClientUser extends User {
    * Sets the status of the client user.
    * @param {PresenceStatusData} status Status to change to
    * @param {number|number[]} [shardId] Shard id(s) to have the activity set on
-   * @returns {ClientPresence}
+   * @returns {Presence}
    * @example
    * // Set the client user's status
    * client.user.setStatus('idle');
@@ -154,7 +153,7 @@ class ClientUser extends User {
    * Sets the activity the client user is playing.
    * @param {string|ActivityOptions} [name] Activity being played, or options for setting the activity
    * @param {ActivityOptions} [options] Options for setting the activity
-   * @returns {ClientPresence}
+   * @returns {Presence}
    * @example
    * // Set the client user's activity
    * client.user.setActivity('discord.js', { type: 'WATCHING' });
@@ -170,7 +169,7 @@ class ClientUser extends User {
    * Sets/removes the AFK flag for the client user.
    * @param {boolean} afk Whether or not the user is AFK
    * @param {number|number[]} [shardId] Shard Id(s) to have the AFK flag set on
-   * @returns {ClientPresence}
+   * @returns {Presence}
    */
   setAFK(afk, shardId) {
     return this.setPresence({ afk, shardId });

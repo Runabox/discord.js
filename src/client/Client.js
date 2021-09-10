@@ -35,7 +35,7 @@ class Client extends BaseClient {
    * @param {ClientOptions} options Options for the client
    */
   constructor(options) {
-    super(options);
+    super(Object.assign({ _tokenType: 'Bot' }, options));
 
     const data = require('worker_threads').workerData ?? process.env;
     const defaults = Options.createDefault();
@@ -181,7 +181,7 @@ class Client extends BaseClient {
       );
       this.sweepMessageInterval = setInterval(
         this.sweepMessages.bind(this),
-        this.options.messageSweepInterval * 1_000,
+        this.options.messageSweepInterval * 1000,
       ).unref();
     }
   }
@@ -401,7 +401,7 @@ class Client extends BaseClient {
       return -1;
     }
 
-    const lifetimeMs = lifetime * 1_000;
+    const lifetimeMs = lifetime * 1000;
     const now = Date.now();
     let channels = 0;
     let messages = 0;

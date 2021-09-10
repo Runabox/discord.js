@@ -92,8 +92,8 @@ class Message extends Base {
        * @type {?User}
        */
       this.author = this.client.users._add(data.author, !data.webhook_id);
-    } else {
-      this.author ??= null;
+    } else if (!this.author) {
+      this.author = null;
     }
 
     if ('pinned' in data) {
@@ -102,8 +102,8 @@ class Message extends Base {
        * @type {?boolean}
        */
       this.pinned = Boolean(data.pinned);
-    } else {
-      this.pinned ??= null;
+    } else if (typeof this.pinned !== 'boolean') {
+      this.pinned = null;
     }
 
     if ('tts' in data) {
@@ -112,8 +112,8 @@ class Message extends Base {
        * @type {?boolean}
        */
       this.tts = data.tts;
-    } else {
-      this.tts ??= null;
+    } else if (typeof this.tts !== 'boolean') {
+      this.tts = null;
     }
 
     if (!partial) {
@@ -158,7 +158,7 @@ class Message extends Base {
         }
       }
     } else {
-      this.attachments = new Collection(this.attachments);
+      this.attachments = new Collection(this.attachemnts);
     }
 
     if ('sticker_items' in data || 'stickers' in data || !partial) {
@@ -282,14 +282,7 @@ class Message extends Base {
     }
 
     /**
-     * Reference data sent in a message that contains ids identifying the referenced message.
-     * This can be present in the following types of message:
-     * * Crossposted messages (IS_CROSSPOST {@link MessageFlags#FLAGS message flag})
-     * * CHANNEL_FOLLOW_ADD
-     * * CHANNEL_PINNED_MESSAGE
-     * * REPLY
-     * * THREAD_STARTER_MESSAGE
-     * @see {@link https://discord.com/developers/docs/resources/channel#message-types}
+     * Reference data sent in a message that contains ids identifying the referenced message
      * @typedef {Object} MessageReference
      * @property {Snowflake} channelId The channel's id the message was referenced
      * @property {?Snowflake} guildId The guild's id the message was referenced
@@ -334,8 +327,8 @@ class Message extends Base {
         commandName: data.interaction.name,
         user: this.client.users._add(data.interaction.user),
       };
-    } else {
-      this.interaction ??= null;
+    } else if (!this.interaction) {
+      this.interaction = null;
     }
   }
 
@@ -447,7 +440,7 @@ class Message extends Base {
    * @example
    * // Create a reaction collector
    * const filter = (reaction, user) => reaction.emoji.name === '👌' && user.id === 'someId';
-   * const collector = message.createReactionCollector({ filter, time: 15_000 });
+   * const collector = message.createReactionCollector({ filter, time: 15000 });
    * collector.on('collect', r => console.log(`Collected ${r.emoji.name}`));
    * collector.on('end', collected => console.log(`Collected ${collected.size} items`));
    */
@@ -469,7 +462,7 @@ class Message extends Base {
    * @example
    * // Create a reaction collector
    * const filter = (reaction, user) => reaction.emoji.name === '👌' && user.id === 'someId'
-   * message.awaitReactions({ filter, time: 15_000 })
+   * message.awaitReactions({ filter, time: 15000 })
    *   .then(collected => console.log(`Collected ${collected.size} reactions`))
    *   .catch(console.error);
    */
@@ -498,7 +491,7 @@ class Message extends Base {
    * @example
    * // Create a message component interaction collector
    * const filter = (interaction) => interaction.customId === 'button' && interaction.user.id === 'someId';
-   * const collector = message.createMessageComponentCollector({ filter, time: 15_000 });
+   * const collector = message.createMessageComponentCollector({ filter, time: 15000 });
    * collector.on('collect', i => console.log(`Collected ${i.customId}`));
    * collector.on('end', collected => console.log(`Collected ${collected.size} items`));
    */
@@ -526,7 +519,7 @@ class Message extends Base {
    * @example
    * // Collect a message component interaction
    * const filter = (interaction) => interaction.customId === 'button' && interaction.user.id === 'someId';
-   * message.awaitMessageComponent({ filter, time: 15_000 })
+   * message.awaitMessageComponent({ filter, time: 15000 })
    *   .then(interaction => console.log(`${interaction.customId} was clicked!`))
    *   .catch(console.error);
    */
@@ -570,9 +563,9 @@ class Message extends Base {
    * @readonly
    */
   get pinnable() {
-    return Boolean(
-      !this.system &&
-        (!this.guild || this.channel.permissionsFor(this.client.user)?.has(Permissions.FLAGS.MANAGE_MESSAGES, false)),
+    return (
+      this.type === 'DEFAULT' &&
+      (!this.guild || this.channel.permissionsFor(this.client.user).has(Permissions.FLAGS.MANAGE_MESSAGES, false))
     );
   }
 
@@ -788,7 +781,6 @@ class Message extends Base {
    */
   fetchWebhook() {
     if (!this.webhookId) return Promise.reject(new Error('WEBHOOK_MESSAGE'));
-    if (this.webhookId === this.applicationId) return Promise.reject(new Error('WEBHOOK_APPLICATION'));
     return this.client.fetchWebhook(this.webhookId);
   }
 
@@ -815,15 +807,6 @@ class Message extends Base {
    */
   removeAttachments() {
     return this.edit({ attachments: [] });
-  }
-
-  /**
-   * Resolves a component by a custom id.
-   * @param {string} customId The custom id to resolve against
-   * @returns {?MessageActionRowComponent}
-   */
-  resolveComponent(customId) {
-    return this.components.flatMap(row => row.components).find(component => component.customId === customId) ?? null;
   }
 
   /**

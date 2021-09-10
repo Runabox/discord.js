@@ -50,7 +50,7 @@ class WidgetMember extends Base {
     this.status = data.status;
 
     /**
-     * If the member is server deafened
+     * IIf the member is server deafened
      * @type {?boolean}
      */
     this.deaf = data.deaf ?? null;

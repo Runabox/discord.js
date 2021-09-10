@@ -75,28 +75,6 @@ class User extends Base {
       this.avatar = null;
     }
 
-    if ('banner' in data) {
-      /**
-       * The user banner's hash
-       * <info>The user must be force fetched for this property to be present</info>
-       * @type {?string}
-       */
-      this.banner = data.banner;
-    } else if (typeof this.banner !== 'string') {
-      this.banner = null;
-    }
-
-    if ('accent_color' in data) {
-      /**
-       * The base 10 accent color of the user's banner
-       * <info>The user must be force fetched for this property to be present</info>
-       * @type {?number}
-       */
-      this.accentColor = data.accent_color;
-    } else {
-      this.accentColor ??= null;
-    }
-
     if ('system' in data) {
       /**
        * Whether the user is an Official Discord System user (part of the urgent message system)
@@ -173,28 +151,6 @@ class User extends Base {
   }
 
   /**
-   * The hexadecimal version of the user accent color, with a leading hash
-   * <info>The user must be force fetched for this property to be present</info>
-   * @type {?string}
-   * @readonly
-   */
-  get hexAccentColor() {
-    if (!this.accentColor) return null;
-    return `#${this.accentColor.toString(16).padStart(6, '0')}`;
-  }
-
-  /**
-   * A link to the user's banner.
-   * <info>The user must be force fetched for this property to be present</info>
-   * @param {ImageURLOptions} [options={}] Options for the Image URL
-   * @returns {?string}
-   */
-  bannerURL({ format, size, dynamic } = {}) {
-    if (!this.banner) return null;
-    return this.client.rest.cdn.Banner(this.id, this.banner, format, size, dynamic);
-  }
-
-  /**
    * The Discord "tag" (e.g. `hydrabolt#0001`) for this user
    * @type {?string}
    * @readonly
@@ -244,8 +200,7 @@ class User extends Base {
   }
 
   /**
-   * Checks if the user is equal to another.
-   * It compares id, username, discriminator, avatar, banner, accent color, and bot flags.
+   * Checks if the user is equal to another. It compares id, username, discriminator, avatar, and bot flags.
    * It is recommended to compare equality by using `user.id === user2.id` unless you want to compare all properties.
    * @param {User} user User to compare with
    * @returns {boolean}
@@ -256,9 +211,7 @@ class User extends Base {
       this.id === user.id &&
       this.username === user.username &&
       this.discriminator === user.discriminator &&
-      this.avatar === user.avatar &&
-      this.banner === user.banner &&
-      this.accentColor === user.accentColor;
+      this.avatar === user.avatar;
 
     return equal;
   }
@@ -300,14 +253,12 @@ class User extends Base {
       {
         createdTimestamp: true,
         defaultAvatarURL: true,
-        hexAccentColor: true,
         tag: true,
       },
       ...props,
     );
     json.avatarURL = this.avatarURL();
     json.displayAvatarURL = this.displayAvatarURL();
-    json.bannerURL = this.bannerURL();
     return json;
   }
 

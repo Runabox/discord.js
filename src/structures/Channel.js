@@ -93,9 +93,11 @@ class Channel extends Base {
    *   .then(console.log)
    *   .catch(console.error);
    */
-  async delete() {
-    await this.client.api.channels(this.id).delete();
-    return this;
+  delete() {
+    return this.client.api
+      .channels(this.id)
+      .delete()
+      .then(() => this);
   }
 
   /**
@@ -133,14 +135,14 @@ class Channel extends Base {
   }
 
   static create(client, data, guild, { allowUnknownGuild, fromInteraction } = {}) {
-    CategoryChannel ??= require('./CategoryChannel');
-    DMChannel ??= require('./DMChannel');
-    NewsChannel ??= require('./NewsChannel');
-    StageChannel ??= require('./StageChannel');
-    StoreChannel ??= require('./StoreChannel');
-    TextChannel ??= require('./TextChannel');
-    ThreadChannel ??= require('./ThreadChannel');
-    VoiceChannel ??= require('./VoiceChannel');
+    if (!CategoryChannel) CategoryChannel = require('./CategoryChannel');
+    if (!DMChannel) DMChannel = require('./DMChannel');
+    if (!NewsChannel) NewsChannel = require('./NewsChannel');
+    if (!StageChannel) StageChannel = require('./StageChannel');
+    if (!StoreChannel) StoreChannel = require('./StoreChannel');
+    if (!TextChannel) TextChannel = require('./TextChannel');
+    if (!ThreadChannel) ThreadChannel = require('./ThreadChannel');
+    if (!VoiceChannel) VoiceChannel = require('./VoiceChannel');
 
     let channel;
     if (!data.guild_id && !guild) {
@@ -151,7 +153,7 @@ class Channel extends Base {
         channel = new PartialGroupDMChannel(client, data);
       }
     } else {
-      guild ??= client.guilds.cache.get(data.guild_id);
+      if (!guild) guild = client.guilds.cache.get(data.guild_id);
 
       if (guild || allowUnknownGuild) {
         switch (data.type) {

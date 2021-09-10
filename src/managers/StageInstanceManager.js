@@ -34,15 +34,8 @@ class StageInstanceManager extends CachedManager {
    */
 
   /**
-   * Data that can be resolved to a Stage Channel object. This can be:
-   * * A StageChannel
-   * * A Snowflake
-   * @typedef {StageChannel|Snowflake} StageChannelResolvable
-   */
-
-  /**
    * Creates a new stage instance.
-   * @param {StageChannelResolvable} channel The stage channel to associate the created stage instance to
+   * @param {StageChannel|Snowflake} channel The stage channel to associate the created stage instance to
    * @param {StageInstanceCreateOptions} options The options to create the stage instance
    * @returns {Promise<StageInstance>}
    * @example
@@ -75,7 +68,7 @@ class StageInstanceManager extends CachedManager {
 
   /**
    * Fetches the stage instance associated with a stage channel, if it exists.
-   * @param {StageChannelResolvable} channel The stage channel whose associated stage instance is to be fetched
+   * @param {StageChannel|Snowflake} channel The stage channel whose associated stage instance is to be fetched
    * @param {BaseFetchOptions} [options] Additional options for this fetch
    * @returns {Promise<StageInstance>}
    * @example
@@ -106,7 +99,7 @@ class StageInstanceManager extends CachedManager {
 
   /**
    * Edits an existing stage instance.
-   * @param {StageChannelResolvable} channel The stage channel whose associated stage instance is to be edited
+   * @param {StageChannel|Snowflake} channel The stage channel whose associated stage instance is to be edited
    * @param {StageInstanceEditOptions} options The options to edit the stage instance
    * @returns {Promise<StageInstance>}
    * @example
@@ -142,7 +135,7 @@ class StageInstanceManager extends CachedManager {
 
   /**
    * Deletes an existing stage instance.
-   * @param {StageChannelResolvable} channel The stage channel whose associated stage instance is to be deleted
+   * @param {StageChannel|Snowflake} channel The stage channel whose associated stage instance is to be deleted
    * @returns {Promise<void>}
    */
   async delete(channel) {

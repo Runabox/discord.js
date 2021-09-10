@@ -119,7 +119,7 @@ class MessageButton extends BaseMessageComponent {
 
   /**
    * Sets the URL of this button.
-   * <info>MessageButton#style must be LINK when setting a URL</info>
+   * <note>MessageButton#style must be LINK when setting a URL</note>
    * @param {string} url The URL of this button
    * @returns {MessageButton}
    */

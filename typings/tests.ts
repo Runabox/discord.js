@@ -1,4 +1,3 @@
-import { APIInteractionGuildMember } from 'discord-api-types';
 import {
   ApplicationCommand,
   ApplicationCommandChoicesData,
@@ -9,7 +8,6 @@ import {
   ApplicationCommandResolvable,
   ApplicationCommandSubCommandData,
   ApplicationCommandSubGroupData,
-  ButtonInteraction,
   CacheFactory,
   Caches,
   CategoryChannel,
@@ -33,14 +31,12 @@ import {
   GuildResolvable,
   Intents,
   Interaction,
-  InteractionCollector,
   LimitedCollection,
   Message,
   MessageActionRow,
   MessageAttachment,
   MessageButton,
   MessageCollector,
-  MessageComponentInteraction,
   MessageEmbed,
   MessageManager,
   MessageReaction,
@@ -53,7 +49,6 @@ import {
   ReactionCollector,
   Role,
   RoleManager,
-  SelectMenuInteraction,
   Serialized,
   ShardClientUtil,
   ShardingManager,
@@ -474,8 +469,7 @@ client.on('messageReactionRemoveAll', async message => {
 // This is to check that stuff is the right type
 declare const assertIsMessage: (m: Promise<Message>) => void;
 
-client.on('messageCreate', message => {
-  const { channel } = message;
+client.on('messageCreate', ({ channel }) => {
   assertIsMessage(channel.send('string'));
   assertIsMessage(channel.send({}));
   assertIsMessage(channel.send({ embeds: [] }));
@@ -490,86 +484,9 @@ client.on('messageCreate', message => {
   channel.send();
   // @ts-expect-error
   channel.send({ another: 'property' });
-
-  // Check collector creations.
-
-  // Verify that buttons interactions are inferred.
-  const buttonCollector = message.createMessageComponentCollector({ componentType: 'BUTTON' });
-  assertType<Promise<ButtonInteraction>>(message.awaitMessageComponent({ componentType: 'BUTTON' }));
-  assertType<InteractionCollector<ButtonInteraction>>(buttonCollector);
-
-  // Verify that select menus interaction are inferred.
-  const selectMenuCollector = message.createMessageComponentCollector({ componentType: 'SELECT_MENU' });
-  assertType<Promise<SelectMenuInteraction>>(message.awaitMessageComponent({ componentType: 'SELECT_MENU' }));
-  assertType<InteractionCollector<SelectMenuInteraction>>(selectMenuCollector);
-
-  // Verify that message component interactions are default collected types.
-  const defaultCollector = message.createMessageComponentCollector();
-  assertType<Promise<MessageComponentInteraction>>(message.awaitMessageComponent());
-  assertType<InteractionCollector<MessageComponentInteraction>>(defaultCollector);
-
-  // Verify that additional options don't affect default collector types.
-  const semiDefaultCollector = message.createMessageComponentCollector({ time: 10000 });
-  assertType<InteractionCollector<MessageComponentInteraction>>(semiDefaultCollector);
-
-  // Verify that interaction collector options can't be used.
-
-  // @ts-expect-error
-  const interactionOptions = message.createMessageComponentCollector({ interactionType: 'APPLICATION_COMMAND' });
-
-  // Make sure filter parameters are properly inferred.
-  message.createMessageComponentCollector({
-    filter: i => {
-      assertType<MessageComponentInteraction>(i);
-      return true;
-    },
-  });
-
-  message.createMessageComponentCollector({
-    componentType: 'BUTTON',
-    filter: i => {
-      assertType<ButtonInteraction>(i);
-      return true;
-    },
-  });
-
-  message.createMessageComponentCollector({
-    componentType: 'SELECT_MENU',
-    filter: i => {
-      assertType<SelectMenuInteraction>(i);
-      return true;
-    },
-  });
-
-  message.awaitMessageComponent({
-    filter: i => {
-      assertType<MessageComponentInteraction>(i);
-      return true;
-    },
-  });
-
-  message.awaitMessageComponent({
-    componentType: 'BUTTON',
-    filter: i => {
-      assertType<ButtonInteraction>(i);
-      return true;
-    },
-  });
-
-  message.awaitMessageComponent({
-    componentType: 'SELECT_MENU',
-    filter: i => {
-      assertType<SelectMenuInteraction>(i);
-      return true;
-    },
-  });
 });
 
 client.on('interaction', async interaction => {
-  assertType<Snowflake | null>(interaction.guildId);
-  assertType<Snowflake | null>(interaction.channelId);
-  assertType<GuildMember | APIInteractionGuildMember | null>(interaction.member);
-
   if (!interaction.isCommand()) return;
 
   void new MessageActionRow();
@@ -588,10 +505,6 @@ client.on('interaction', async interaction => {
 
   // @ts-expect-error
   await interaction.reply({ content: 'Hi!', components: [button] });
-
-  if (interaction.isMessageComponent()) {
-    assertType<Snowflake>(interaction.channelId);
-  }
 });
 
 client.login('absolutely-valid-token');
